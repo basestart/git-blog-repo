@@ -1,2 +1,2 @@
-# git-blog-repo
-source
+# git-blog
+blog origin
