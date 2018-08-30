@@ -1,9 +1,9 @@
 ---
-title: THINK AGAIN 2 ：HOW TO REASON DEDUCTIVELY (一)
+title: Think Again II： How to Reason Deductively (1)
 date: 2018-08-30 16:16:01
-tags: ['arguments', 'coursera', 'Duke', 'think again 2']
+tags: ['arguments', 'coursera', 'Duke', 'Think Again II']
 ---
-[course 课程链接](https://www.coursera.org/learn/deductive-reasoning)
+[coursera 课程链接](https://www.coursera.org/learn/deductive-reasoning)
 
 
 <div align=center width = "30" height = "30">![top](de.jpg)

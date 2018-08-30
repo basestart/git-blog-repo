@@ -1,7 +1,7 @@
 ---
-title: THINK AGAIN 1 ：HOW TO UNDERSTAND ARGUMENTS (一)
+title: Think Again I： How to Understand Arguments (1)
 date: 2018-08-30 13:04:14
-tags: ['arguments', 'coursera', 'Duke', 'think again 1']
+tags: ['arguments', 'coursera', 'Duke', 'Think Again I']
 ---
 [course 课程链接](https://www.coursera.org/learn/understanding-arguments)
 
