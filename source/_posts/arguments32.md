@@ -4,7 +4,7 @@ date: 2018-08-31 02:27:54
 tags: ['arguments', 'coursera', 'Duke', 'Think Again III']
 ---
 
-[coursera 课程链接](https://www.coursera.org/learn/deductive-reasoning)
+[coursera 课程链接](https://www.coursera.org/learn/inductive-reasoning)
 
 <div align=center width = "30" height = "30">![top](in.jpg)
 

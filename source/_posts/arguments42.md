@@ -3,7 +3,7 @@ title: Think Again IV： How to Avoid Fallacies(2)
 date: 2018-08-31 03:25:11
 tags: ['arguments', 'coursera', 'Duke', 'Think Again IV']
 ---
-[coursera 课程链接](https://www.coursera.org/learn/deductive-reasoning)
+[coursera 课程链接](https://www.coursera.org/learn/logical-fallacies)
 
 <div align=center width = "30" height = "30">![top](fa.jpg)
 
