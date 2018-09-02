@@ -344,7 +344,11 @@ latest: 1.0.2
 npm install fake-reducer --save
 ```
 
-### 集成开发环境
+### 添加拓展功能
+
+- enhencer
+
+- middleware
 
 
 
