@@ -348,7 +348,46 @@ npm install fake-reducer --save
 
 - enhencer
 
+enhencer 是redux的增强， 是一个高阶函数， 相当于在createStore函数返回对象添加一层， 你可以对createStore的返回对象做任意修改
+```
+	getState,
+	dispatch,
+	subscribe 
+```
+比如想做一个打印action的logger
+```
+function loggerEnhencer (createStore) {
+	return function (reducer, initState) {
+		let store = createStore(reducer, initState);
+		function dispatch (action) {
+			console.log(`dispatching an action : ${JSON.stringify(action)}`);
+			const res = store.dispatch(action);
+			const newState = store.getState();
+			console.log(`current state : ${JSON.stringify(newState)}`);
+			return res;
+		}
+		return {
+			...store,
+			dispatch
+		}
+	}
+}
+```
+这里相当于对dispatch进行增强， 其实还可以对subscribe, store等进行增强
+
+使用方法如下：
+
+```
+var store = createStore(change, count, loggerEnhencer);
+```
+
 - middleware
+
+
+### 项目地址
+
+[fake-reducer](https://github.com/fridego/fake-reducer)
+[fake-redux-logger](https://github.com/fridego/fake-redux-enhercer-logger)
 
 
 
