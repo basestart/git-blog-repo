@@ -20,45 +20,45 @@ tags: ['redux', '总结', '最接地气']
 
 接下来从一个最最简单的demo开始， 看传统的数据流是一步一步往redux过渡的， 以及这么过渡是出于什么样的考量：
 
-```
-<!DOCTYPE html>
-<html>
-<head>
-	<title>	redux-abc </title>
-	<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
-</head>
-<body>
-	<div>
-		<button id="add">+</button>
-		<button id="sub">-</button>
-		<div id="show"></div>
-	</div>
-<script>
-	var count = 0;
 
-	var add = $('#add');
-	var sub = $('#sub');
-	var show = $('#show');
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<title>	redux-abc </title>
+		<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+	</head>
+	<body>
+		<div>
+			<button id="add">+</button>
+			<button id="sub">-</button>
+			<div id="show"></div>
+		</div>
+	<script>
+		var count = 0;
 
-	add.click(() => {
-		count ++;
-		render()
-	})
+		var add = $('#add');
+		var sub = $('#sub');
+		var show = $('#show');
 
-	sub.click(() => {
-		count --;
-		render()
-	})
+		add.click(() => {
+			count ++;
+			render()
+		})
 
-	function render () {
-		show.text(count);
-	}
+		sub.click(() => {
+			count --;
+			render()
+		})
 
-	render();
-</script>
-</body>
-</html>
-```
+		function render () {
+			show.text(count);
+		}
+
+		render();
+	</script>
+	</body>
+	</html>
+
 这段代码的功能比较简单， 就是两个按钮， 点击'+', 数字加一， 点击'-', 数字减一。 
 
 实现这么一个小的功能， 需要维护两个程序对象： 动作(鼠标的两类点击动作)和状态(count)。
@@ -74,44 +74,44 @@ redux的解决思路是： 状态统一管理， 动作纯粹是动作， 跟状
 
 按照这个思路对源程序进行修改一下
 
-```
-var count = 0;
-var add = $('#add');
-var sub = $('#sub');
-var show = $('#show');
-// 统一action
-var ADD = {type: 'ADD'};
-var SUB = {type: 'SUB'};
-// count根据action的不同动态映射新的count
-function change (count, action) {
-	if(action.type === 'ADD') {
-		return ++ count
-	} else if(action.type === 'SUB') {
-		return -- count
-	} else {
-		return count
+
+	var count = 0;
+	var add = $('#add');
+	var sub = $('#sub');
+	var show = $('#show');
+	// 统一action
+	var ADD = {type: 'ADD'};
+	var SUB = {type: 'SUB'};
+	// count根据action的不同动态映射新的count
+	function change (count, action) {
+		if(action.type === 'ADD') {
+			return ++ count
+		} else if(action.type === 'SUB') {
+			return -- count
+		} else {
+			return count
+		}
 	}
-}
 
-add.click(() => {
-	update(ADD)
-})
+	add.click(() => {
+		update(ADD)
+	})
 
-sub.click(() => {
-	update(SUB);
-})
+	sub.click(() => {
+		update(SUB);
+	})
 
-function update (action) {
-	count = change(count, action);
+	function update (action) {
+		count = change(count, action);
+		render(count);
+	}
+
+	function render (count) {
+		show.text(count);
+	}
+
 	render(count);
-}
 
-function render (count) {
-	show.text(count);
-}
-
-render(count);
-```
 
 ### 代码优化
 
@@ -119,95 +119,95 @@ render(count);
 
 最终想要达到的效果是这样的
 
-```
-// store维护状态， 同时集成reducer（就是现在的change函数）
-var store = createStore(reducer);
-// 提供dispatch 方法，触发reducer分支， 改变state
-store.dispatch(action);
-// render函数订阅store， 实现dispatch的自动更新
-store.subscribe(render);
-```
+
+	// store维护状态， 同时集成reducer（就是现在的change函数）
+	var store = createStore(reducer);
+	// 提供dispatch 方法，触发reducer分支， 改变state
+	store.dispatch(action);
+	// render函数订阅store， 实现dispatch的自动更新
+	store.subscribe(render);
+
 
 为此， 这里单独创建fakeReducer.js管理工具库
 
-```
-function createStore (reducer, initState) {
-	let currentState = initState;
-	let currentReducer = reducer;
-	let listeners = [];
 
-	function getState () {
-		return currentState;
-	}
+	function createStore (reducer, initState) {
+		let currentState = initState;
+		let currentReducer = reducer;
+		let listeners = [];
 
-	function dispatch (action) {
-		currentState = currentReducer(currentState, action);
-		for(let i = 0; i < listeners.length; ++i) {
-			listeners[i]();
+		function getState () {
+			return currentState;
+		}
+
+		function dispatch (action) {
+			currentState = currentReducer(currentState, action);
+			for(let i = 0; i < listeners.length; ++i) {
+				listeners[i]();
+			}
+		}
+
+		function subscribe (listener) {
+			listeners.push(listener);
+			return function (listener) {
+				unSubscribe(listener);
+			}
+		}
+
+		function unsubscribe(listener) {
+			let index = listeners.indexOf(listener);
+			listeners.splice(index, 1);
+		}
+
+		return {
+			getState,
+			dispatch,
+			subscribe
 		}
 	}
 
-	function subscribe (listener) {
-		listeners.push(listener);
-		return function (listener) {
-			unSubscribe(listener);
-		}
-	}
-
-	function unsubscribe(listener) {
-		let index = listeners.indexOf(listener);
-		listeners.splice(index, 1);
-	}
-
-	return {
-		getState,
-		dispatch,
-		subscribe
-	}
-}
-```
 
 然后适用fakeReducer对原有的计数器代码进行改造一番：
 
-```
-var count = 0;
-var add = $('#add');
-var sub = $('#sub');
-var show = $('#show');
-// 统一action
-var ADD = {type: 'ADD'};
-var SUB = {type: 'SUB'};
-// count根据action的不同动态映射新的count, 也就是reducer了
-function change (count, action) {
-	if(action.type === 'ADD') {
-		return ++ count
-	} else if(action.type === 'SUB') {
-		return -- count
-	} else {
-		return count
+
+	var count = 0;
+	var add = $('#add');
+	var sub = $('#sub');
+	var show = $('#show');
+	// 统一action
+	var ADD = {type: 'ADD'};
+	var SUB = {type: 'SUB'};
+	// count根据action的不同动态映射新的count, 也就是reducer了
+	function change (count, action) {
+		if(action.type === 'ADD') {
+			return ++ count
+		} else if(action.type === 'SUB') {
+			return -- count
+		} else {
+			return count
+		}
 	}
-}
 
-var store = createStore(change, count);
+	var store = createStore(change, count);
 
-add.click(() => {
-	store.dispatch(ADD);
-})
+	add.click(() => {
+		store.dispatch(ADD);
+	})
 
-sub.click(() => {
-	store.dispatch(SUB);
-})
+	sub.click(() => {
+		store.dispatch(SUB);
+	})
 
-store.subscribe(render);
+	store.subscribe(render);
 
-function render () {
-	let count = store.getState();
-	show.text(count);
-}
+	function render () {
+		let count = store.getState();
+		show.text(count);
+	}
 
-//初始化
-render();
-```
+	//初始化
+	render();
+
 
 到现在， 一个非常简陋的reducer已经实现了， 说简陋是因为还没有增强实现enhancer的功能， 也不支持中间件， 没有考虑足够多的边界条件， 也没有测试代码， 这一部分后续完善。 但从原理上来讲， 已经实现了文章的初衷： 用最简单的方法， 理解reducer的逻辑。
 
@@ -219,167 +219,167 @@ render();
 
 - clone到本地后， 初始化npm项目
 
-```
-{
-  "name": "fake-reducer",
-  "version": "1.0.2",
-  "description": "fake reducer",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fridego/fake-reducer.git"
-  },
-  "keywords": [
-    "fake-reducer"
-  ],
-  "author": "fridego",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/fridego/fake-reducer/issues"
-  },
-  "homepage": "https://github.com/fridego/fake-reducer#readme"
-}
 
-```
+	{
+	"name": "fake-reducer",
+	"version": "1.0.2",
+	"description": "fake reducer",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/fridego/fake-reducer.git"
+	},
+	"keywords": [
+		"fake-reducer"
+	],
+	"author": "fridego",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/fridego/fake-reducer/issues"
+	},
+	"homepage": "https://github.com/fridego/fake-reducer#readme"
+	}
+
+
 
 - 创建入口文件 index.js
 
-```
-// index.js
 
-function createStore (reducer, initState) {
-	let currentState = initState;
-	let currentReducer = reducer;
-	let listeners = [];
+	// index.js
 
-	function getState () {
-		return currentState;
-	}
+	function createStore (reducer, initState) {
+		let currentState = initState;
+		let currentReducer = reducer;
+		let listeners = [];
 
-	function dispatch (action) {
-		currentState = currentReducer(currentState, action);
-		for(let i = 0; i < listeners.length; ++i) {
-			listeners[i]();
+		function getState () {
+			return currentState;
+		}
+
+		function dispatch (action) {
+			currentState = currentReducer(currentState, action);
+			for(let i = 0; i < listeners.length; ++i) {
+				listeners[i]();
+			}
+		}
+
+		function subscribe (listener) {
+			listeners.push(listener);
+			return function (listener) {
+				unSubscribe(listener);
+			}
+		}
+
+		function unsubscribe(listener) {
+			let index = listeners.indexOf(listener);
+			listeners.splice(index, 1);
+		}
+
+		return {
+			getState,
+			dispatch,
+			subscribe
 		}
 	}
 
-	function subscribe (listener) {
-		listeners.push(listener);
-		return function (listener) {
-			unSubscribe(listener);
-		}
-	}
+	module.exports = createStore;
 
-	function unsubscribe(listener) {
-		let index = listeners.indexOf(listener);
-		listeners.splice(index, 1);
-	}
-
-	return {
-		getState,
-		dispatch,
-		subscribe
-	}
-}
-
-module.exports = createStore;
-```
 
 - 在[npm官网](www.npmjs.com)创建账户 
 
 - 本地登陆
 
-```
-npm adduser
-```
+
+	npm adduser
+
 
 - 上传源码到github
 
-```
-git add .
-git commit -m 'init'
-git push
-```
+
+	git add .
+	git commit -m 'init'
+	git push
+
 
 - 发布npm包
 
-```
-npm publish
-```
+
+	npm publish
+
 
 - 查看包
 
-```
-//命令行运行：
-npm view fake-reducer
 
-就可以看到刚刚发布的fake-reducer包了
+	//命令行运行：
+	npm view fake-reducer
 
-fake-reducer@1.0.2 | MIT | deps: none | versions: 3
-fake reducer
-https://github.com/fridego/fake-reducer#readme
+	就可以看到刚刚发布的fake-reducer包了
 
-keywords: fake-reducer
+	fake-reducer@1.0.2 | MIT | deps: none | versions: 3
+	fake reducer
+	https://github.com/fridego/fake-reducer#readme
 
-dist
-.tarball https://registry.npmjs.org/fake-reducer/-/fake-reducer-1.0.2.tgz
-.shasum: dfc9179f1e2b11568e4dedb9f194f0f813261c6e
-.integrity: sha512-kY1+WLt4Ko9i7gy4yOgbHI/uH/8o15DmrAMgrhp1s3Lu5FGkREEn4xG5HsyQCGDbvtc9H7oI9/MydIUeosrdhw==
-.unpackedSize: 1.2 kB
+	keywords: fake-reducer
 
-maintainers:
-- fridego <hellofridego@gmail.com>
+	dist
+	.tarball https://registry.npmjs.org/fake-reducer/-/fake-reducer-1.0.2.tgz
+	.shasum: dfc9179f1e2b11568e4dedb9f194f0f813261c6e
+	.integrity: sha512-kY1+WLt4Ko9i7gy4yOgbHI/uH/8o15DmrAMgrhp1s3Lu5FGkREEn4xG5HsyQCGDbvtc9H7oI9/MydIUeosrdhw==
+	.unpackedSize: 1.2 kB
 
-dist-tags:
-latest: 1.0.2
+	maintainers:
+	- fridego <hellofridego@gmail.com>
 
-```
+	dist-tags:
+	latest: 1.0.2
+
+
 
 - 在项目中适用
 
-```
-npm install fake-reducer --save
-```
+
+	npm install fake-reducer --save
+
 
 ### 添加拓展功能
 
 - enhencer
 
 enhencer 是redux的增强， 是一个高阶函数， 相当于在createStore函数返回对象添加一层， 你可以对createStore的返回对象做任意修改
-```
+
 	getState,
 	dispatch,
 	subscribe 
-```
+
 比如想做一个打印action的logger
-```
-function loggerEnhencer (createStore) {
-	return function (reducer, initState) {
-		let store = createStore(reducer, initState);
-		function dispatch (action) {
-			console.log(`dispatching an action : ${JSON.stringify(action)}`);
-			const res = store.dispatch(action);
-			const newState = store.getState();
-			console.log(`current state : ${JSON.stringify(newState)}`);
-			return res;
-		}
-		return {
-			...store,
-			dispatch
+
+	function loggerEnhencer (createStore) {
+		return function (reducer, initState) {
+			let store = createStore(reducer, initState);
+			function dispatch (action) {
+				console.log(`dispatching an action : ${JSON.stringify(action)}`);
+				const res = store.dispatch(action);
+				const newState = store.getState();
+				console.log(`current state : ${JSON.stringify(newState)}`);
+				return res;
+			}
+			return {
+				...store,
+				dispatch
+			}
 		}
 	}
-}
-```
+
 这里相当于对dispatch进行增强， 其实还可以对subscribe, store等进行增强
 
 使用方法如下：
 
-```
-var store = createStore(change, count, loggerEnhencer);
-```
+
+	var store = createStore(change, count, loggerEnhencer);
+
 
 - middleware
 
