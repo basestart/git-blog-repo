@@ -4,6 +4,10 @@ db.json
 *.log
 node_modules/
 public/
+<<<<<<< HEAD
 .deploy*/
 themes/*
 yarn.lock
+=======
+.deploy*/
+>>>>>>> 9b68e56383832cc4b0efd5fba0a1df3740fdf05a
